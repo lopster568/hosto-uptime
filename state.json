@@ -13,19 +13,19 @@
   },
   "holycaresorganic.com": {
     "alerted": 0,
-    "fails": 1,
+    "fails": 2,
     "first_fail": 1785858667,
     "last_alert": 0
   },
   "myimmersify.com": {
     "alerted": 0,
-    "fails": 1,
+    "fails": 2,
     "first_fail": 1785858667,
     "last_alert": 0
   },
   "sunpwr.com.au": {
     "alerted": 0,
-    "fails": 1,
+    "fails": 2,
     "first_fail": 1785858667,
     "last_alert": 0
   },
