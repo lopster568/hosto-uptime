@@ -1,11 +1,11 @@
 [
-  { "name": "calyora.in",                 "url": "https://calyora.in/" },
-  { "name": "www.calyora.in",             "url": "https://www.calyora.in/" },
-  { "name": "holycaresorganic.com",       "url": "https://holycaresorganic.com/" },
-  { "name": "www.holycaresorganic.com",   "url": "https://www.holycaresorganic.com/" },
-  { "name": "bhoojeevanorganics.com",     "url": "https://bhoojeevanorganics.com/" },
-  { "name": "www.bhoojeevanorganics.com", "url": "https://www.bhoojeevanorganics.com/" },
-  { "name": "myimmersify.com",            "url": "https://myimmersify.com/" },
-  { "name": "sunpwr.com.au",              "url": "https://sunpwr.com.au/" },
-  { "name": "tunnel-canary",              "url": "https://tunnel-test.hosto.app/", "keyword": "edge-ok" }
+  { "name": "calyora.in",                 "url": "https://calyora.in/",                 "site": "calyora",            "role": "apex" },
+  { "name": "www.calyora.in",             "url": "https://www.calyora.in/",             "site": "calyora",            "role": "www" },
+  { "name": "holycaresorganic.com",       "url": "https://holycaresorganic.com/",       "site": "holycaresorganic",   "role": "apex" },
+  { "name": "www.holycaresorganic.com",   "url": "https://www.holycaresorganic.com/",   "site": "holycaresorganic",   "role": "www" },
+  { "name": "bhoojeevanorganics.com",     "url": "https://bhoojeevanorganics.com/",     "site": "bhoojeevanorganics", "role": "apex" },
+  { "name": "www.bhoojeevanorganics.com", "url": "https://www.bhoojeevanorganics.com/", "site": "bhoojeevanorganics", "role": "www" },
+  { "name": "myimmersify.com",            "url": "https://myimmersify.com/",            "site": "myimmersify",        "role": "apex" },
+  { "name": "sunpwr.com.au",              "url": "https://sunpwr.com.au/",              "site": "solraysconsultant",  "role": "apex" },
+  { "name": "tunnel-canary",              "url": "https://tunnel-test.hosto.app/",      "site": "canary",             "role": "canary", "keyword": "edge-ok" }
 ]

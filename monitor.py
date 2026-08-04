@@ -152,10 +152,22 @@ def main() -> int:
         probed = dict(ex.map(
             lambda tg: (tg["name"], probe(tg["url"], tg.get("keyword"))), targets))
 
-    # Per target: run the same state machine failover-monitor.sh used, collecting the
-    # lines we WOULD send this run. Alert-state advancement (alerted / last_alert) is
-    # applied only after a successful send, so a failed send retries next run.
-    events = []          # (kind, name, line) — pending_down st mutated post-send
+    # This run's up/down per (site, role), so a down apex can say whether its www still
+    # serves — "apex down, www UP" is a 🟠 partial (store reachable), not a 🔴 emergency.
+    up_now = {(tg.get("site"), tg.get("role")): probed[tg["name"]][0] for tg in targets}
+
+    def annotate(tg):
+        """(is_full_down, context_suffix) for a down target, sibling-aware."""
+        site, role = tg.get("site"), tg.get("role")
+        if role == "apex" and up_now.get((site, "www")):
+            return False, " — apex down, www is UP (store still reachable)"
+        if role == "www" and up_now.get((site, "apex")):
+            return False, " — www down, apex is UP"
+        return True, ""
+
+    # Per target: the same state machine failover-monitor.sh used, collecting the lines we'd
+    # send. Alert-state (alerted / last_alert) advances only after a successful send.
+    events = []          # (kind, line): kind in {"full", "partial", "up"}
     pending_down = []    # st dicts to mark alerted=1/last_alert=t iff the send succeeds
 
     for tg in targets:
@@ -166,13 +178,11 @@ def main() -> int:
         if ok:
             down_for = t - st["first_fail"] if st["first_fail"] else 0
             if st["alerted"]:
-                events.append(("up", name,
-                               f"🟢 RECOVERED: {name} back UP after {fmt_duration(down_for)} ({detail})."))
+                events.append(("up", f"🟢 RECOVERED: {name} back UP after {fmt_duration(down_for)} ({detail})."))
             elif st["fails"] >= FAIL_THRESHOLD:
                 # Crossed threshold but the DOWN alert never went out (Telegram was down).
-                events.append(("up", name,
-                               f"🟢 RECOVERED: {name} back UP after ~{fmt_duration(down_for)} "
-                               f"(DOWN alerts during this outage could not be delivered)."))
+                events.append(("up", f"🟢 RECOVERED: {name} back UP after ~{fmt_duration(down_for)} "
+                                     f"(DOWN alerts during this outage could not be delivered)."))
             # else: below-threshold blip that self-cleared → silent.
             state[name] = {"fails": 0, "first_fail": 0, "alerted": 0, "last_alert": 0}
             continue
@@ -182,21 +192,29 @@ def main() -> int:
             st["first_fail"] = t
         st["fails"] += 1
         if st["fails"] >= FAIL_THRESHOLD:
+            full, ctx = annotate(tg)
+            kind = "full" if full else "partial"
+            dot, label = ("🔴", "DOWN") if full else ("🟠", "PARTIAL")
             if not st["alerted"]:
-                events.append(("down", name,
-                               f"🔴 DOWN: {name} — {detail}, {st['fails']} consecutive checks."))
+                events.append((kind, f"{dot} {label}: {name}{ctx} "
+                                     f"({detail}, {st['fails']} consecutive checks)."))
                 pending_down.append(st)
             elif t - st["last_alert"] >= RENOTIFY_SECONDS:
                 dur = fmt_duration(t - st["first_fail"])
-                events.append(("still", name, f"🔴 STILL DOWN: {name} — down for {dur} ({detail})."))
+                events.append((kind, f"{dot} STILL {label}: {name}{ctx} — down for {dur} ({detail})."))
                 pending_down.append(st)
         state[name] = st
 
     exit_code = 0
     if events:
-        header = "🚨 Hosto uptime" if any(k != "up" for k, _, _ in events) else "✅ Hosto uptime"
-        body = "\n".join(line for _, _, line in events)
-        msg = f"{header}\n\n{body}"
+        if any(k == "full" for k, _ in events):
+            header = "🚨 Hosto uptime — SITE DOWN"
+        elif any(k == "partial" for k, _ in events):
+            header = "🟠 Hosto uptime — partial (apex down, www still serving)"
+        else:
+            header = "🟢 Hosto uptime — recovered"
+        msg = header + "\n\n" + "\n".join(line for _, line in events)
+        print(msg)                       # echo to the Action log for visibility
         if send_telegram(msg):
             for st in pending_down:      # advance alert-state only on a successful send
                 st["alerted"] = 1
