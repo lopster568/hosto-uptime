@@ -1,0 +1,42 @@
+name: uptime
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # every ~10 min (GitHub cron is best-effort; can lag under load)
+  workflow_dispatch: {}       # lets you run it on demand from the Actions tab
+
+# Never let two runs overlap and race on state.json.
+concurrency:
+  group: uptime
+  cancel-in-progress: false
+
+permissions:
+  contents: write             # to commit state.json back when it changes
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run monitor
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 monitor.py
+
+      # Runs even if the monitor exited non-zero (a failed Telegram send), so the
+      # incremented fail counters are never lost. Commits ONLY when state changed,
+      # so a healthy platform produces no commits.
+      - name: Persist state if changed
+        if: always()
+        run: |
+          if ! git diff --quiet -- state.json; then
+            git config user.name  "hosto-uptime-bot"
+            git config user.email "hosto-uptime-bot@users.noreply.github.com"
+            git add state.json
+            git commit -m "state: $(date -u +%FT%TZ)"
+            git push
+          else
+            echo "state unchanged — no commit"
+          fi
