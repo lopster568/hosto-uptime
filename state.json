@@ -19,15 +19,15 @@
   },
   "myimmersify.com": {
     "alerted": 1,
-    "fails": 10,
+    "fails": 11,
     "first_fail": 1785903540,
-    "last_alert": 1785961665
+    "last_alert": 1785966625
   },
   "sunpwr.com.au": {
     "alerted": 1,
-    "fails": 10,
+    "fails": 11,
     "first_fail": 1785903540,
-    "last_alert": 1785961665
+    "last_alert": 1785966625
   },
   "tunnel-canary": {
     "alerted": 0,
