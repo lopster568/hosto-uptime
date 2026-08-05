@@ -146,18 +146,25 @@ def main() -> int:
     before = json.dumps(state, sort_keys=True)
     t = now()
 
+    # Vantage sanity: if the runner itself can't reach the open internet, EVERY probe would look
+    # "down" and we'd falsely cry PLATFORM DOWN. Require a control host first; bail quietly if not.
+    if not any(probe_once(u, None)[0] for u in
+               ("https://www.google.com/generate_204", "https://api.github.com")):
+        print("monitor vantage has no network — skipping run (no reading, no false alarms)")
+        return 0
+
     # Probe every target concurrently so one run doesn't take sum(timeouts) when several
     # targets are down — it takes about as long as the single slowest target.
     with ThreadPoolExecutor(max_workers=min(16, len(targets))) as ex:
         probed = dict(ex.map(
             lambda tg: (tg["name"], probe(tg["url"], tg.get("keyword"))), targets))
 
-    # This run's up/down per (site, role), so a down apex can say whether its www still
-    # serves — "apex down, www UP" is a 🟠 partial (store reachable), not a 🔴 emergency.
+    # This run's up/down per (site, role), so a down apex can say whether its www still serves.
     up_now = {(tg.get("site"), tg.get("role")): probed[tg["name"]][0] for tg in targets}
+    n_customer = sum(1 for tg in targets if tg.get("role") != "canary")
 
     def annotate(tg):
-        """(is_full_down, context_suffix) for a down target, sibling-aware."""
+        """(is_full_down, context_suffix) for a down customer target, sibling-aware."""
         site, role = tg.get("site"), tg.get("role")
         if role == "apex" and up_now.get((site, "www")):
             return False, " — apex down, www is UP (store still reachable)"
@@ -165,25 +172,33 @@ def main() -> int:
             return False, " — www down, apex is UP"
         return True, ""
 
-    # Per target: the same state machine failover-monitor.sh used, collecting the lines we'd
-    # send. Alert-state (alerted / last_alert) advances only after a successful send.
-    events = []          # (kind, line): kind in {"full", "partial", "up"}
-    pending_down = []    # st dicts to mark alerted=1/last_alert=t iff the send succeeds
+    # Same per-target state machine as failover-monitor.sh. The canary (tunnel-test.hosto.app)
+    # is the PLATFORM probe: it rides CF → tunnel → Caddy on app-01t exactly like every customer
+    # site, so if pve-2 / app-01t / cloudflared is down, IT is down. When the platform is down
+    # that ONE alert dominates and the downstream per-site list is SUPPRESSED — "the machine is
+    # down", not a list of every website (correlated / root-cause alerting).
+    site_events = []     # (kind, line): kind in {"full", "partial", "up"}
+    plat_event = None    # (kind, line): kind in {"down", "up"}
+    canary_st = None     # the canary's state dict (advance only ITS alert-state on platform-down)
+    pending_down = []
 
     for tg in targets:
         name = tg["name"]
+        is_canary = tg.get("role") == "canary"
         st = state.get(name) or {"fails": 0, "first_fail": 0, "alerted": 0, "last_alert": 0}
+        if is_canary:
+            canary_st = st
         ok, detail = probed[name]
 
         if ok:
             down_for = t - st["first_fail"] if st["first_fail"] else 0
-            if st["alerted"]:
-                events.append(("up", f"🟢 RECOVERED: {name} back UP after {fmt_duration(down_for)} ({detail})."))
-            elif st["fails"] >= FAIL_THRESHOLD:
-                # Crossed threshold but the DOWN alert never went out (Telegram was down).
-                events.append(("up", f"🟢 RECOVERED: {name} back UP after ~{fmt_duration(down_for)} "
-                                     f"(DOWN alerts during this outage could not be delivered)."))
-            # else: below-threshold blip that self-cleared → silent.
+            if st["alerted"] or st["fails"] >= FAIL_THRESHOLD:
+                tail = "" if st["alerted"] else " (DOWN alerts during the outage could not be delivered)"
+                if is_canary:
+                    plat_event = ("up", f"🟢 PLATFORM RECOVERED: app-01t / cloudflared tunnel is back UP.\n\n"
+                                        f"Tunnel canary reachable again. Downtime: {fmt_duration(down_for)}.{tail}")
+                else:
+                    site_events.append(("up", f"🟢 RECOVERED: {name} back UP after {fmt_duration(down_for)}{tail} ({detail})."))
             state[name] = {"fails": 0, "first_fail": 0, "alerted": 0, "last_alert": 0}
             continue
 
@@ -192,34 +207,68 @@ def main() -> int:
             st["first_fail"] = t
         st["fails"] += 1
         if st["fails"] >= FAIL_THRESHOLD:
-            full, ctx = annotate(tg)
-            kind = "full" if full else "partial"
-            dot, label = ("🔴", "DOWN") if full else ("🟠", "PARTIAL")
-            if not st["alerted"]:
-                events.append((kind, f"{dot} {label}: {name}{ctx} "
-                                     f"({detail}, {st['fails']} consecutive checks)."))
-                pending_down.append(st)
-            elif t - st["last_alert"] >= RENOTIFY_SECONDS:
-                dur = fmt_duration(t - st["first_fail"])
-                events.append((kind, f"{dot} STILL {label}: {name}{ctx} — down for {dur} ({detail})."))
-                pending_down.append(st)
+            dur = fmt_duration(t - st["first_fail"])
+            if is_canary:
+                if not st["alerted"]:
+                    plat_event = ("down", f"🚨 PLATFORM DOWN: app-01t / cloudflared tunnel unreachable\n\n"
+                                          f"Production is OFFLINE — the tunnel canary failed {st['fails']} consecutive checks. "
+                                          f"Every tunnel-served customer site is affected. Investigate pve-2 / app-01t / cloudflared now.")
+                    pending_down.append(st)
+                elif t - st["last_alert"] >= RENOTIFY_SECONDS:
+                    plat_event = ("down", f"🚨 PLATFORM STILL DOWN: app-01t / tunnel unreachable for {dur}. "
+                                          f"Every tunnel-served site affected — manual intervention required (pve-2 / app-01t).")
+                    pending_down.append(st)
+            else:
+                full, ctx = annotate(tg)
+                dot, label = ("🔴", "DOWN") if full else ("🟠", "PARTIAL")
+                kind = "full" if full else "partial"
+                if not st["alerted"]:
+                    site_events.append((kind, f"{dot} {label}: {name}{ctx} ({detail}, {st['fails']} consecutive checks)."))
+                    pending_down.append(st)
+                elif t - st["last_alert"] >= RENOTIFY_SECONDS:
+                    site_events.append((kind, f"{dot} STILL {label}: {name}{ctx} — down for {dur} ({detail})."))
+                    pending_down.append(st)
         state[name] = st
 
+    # Correlate: if the platform (canary) is down, that single alert dominates and the per-site
+    # list is suppressed. Sites still tick their counters silently and re-evaluate once it's back.
+    canary_down = canary_st is not None and canary_st["fails"] >= FAIL_THRESHOLD
+
     exit_code = 0
-    if events:
-        if any(k == "full" for k, _ in events):
-            header = "🚨 Hosto uptime — SITE DOWN"
-        elif any(k == "partial" for k, _ in events):
-            header = "🟠 Hosto uptime — partial (apex down, www still serving)"
+    if canary_down:
+        if plat_event and plat_event[0] == "down":
+            n_down = sum(1 for k, _ in site_events if k in ("full", "partial"))
+            msg = plat_event[1]
+            if n_down:
+                msg += (f"\n\n({n_down} of {n_customer} customer URLs are also unreachable — "
+                        f"downstream of this outage; per-site alerts suppressed.)")
+            pending_down = [canary_st]           # advance ONLY the platform's alert-state
         else:
-            header = "🟢 Hosto uptime — recovered"
-        msg = header + "\n\n" + "\n".join(line for _, line in events)
-        print(msg)                       # echo to the Action log for visibility
+            msg = None                           # platform down, renotify not due → stay quiet
+            pending_down = []
+    elif site_events or (plat_event and plat_event[0] == "up"):
+        blocks = []
+        if plat_event and plat_event[0] == "up":
+            blocks.append(plat_event[1])
+        if site_events:
+            if any(k == "full" for k, _ in site_events):
+                head = "🚨 Hosto uptime — site down"
+            elif any(k == "partial" for k, _ in site_events):
+                head = "🟠 Hosto uptime — partial (apex down, www still serving)"
+            else:
+                head = "🟢 Hosto uptime — recovered"
+            blocks.append(head + "\n\n" + "\n".join(line for _, line in site_events))
+        msg = "\n\n".join(blocks)
+    else:
+        msg = None
+
+    if msg:
+        print(msg)                               # echo to the Action log for visibility
         if send_telegram(msg):
-            for st in pending_down:      # advance alert-state only on a successful send
+            for st in pending_down:              # advance alert-state only on a successful send
                 st["alerted"] = 1
                 st["last_alert"] = t
-            print(f"sent {len(events)} event(s)")
+            print("sent alert")
         else:
             # Loud: leave down targets un-alerted so we retry next run, and fail the run.
             print("telegram send FAILED — alert-state not advanced; run marked failed", file=sys.stderr)
