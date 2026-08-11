@@ -19,13 +19,13 @@
   },
   "myimmersify.com": {
     "alerted": 1,
-    "fails": 122,
+    "fails": 123,
     "first_fail": 1785903540,
     "last_alert": 1786404999
   },
   "sunpwr.com.au": {
     "alerted": 1,
-    "fails": 122,
+    "fails": 123,
     "first_fail": 1785903540,
     "last_alert": 1786404999
   },
