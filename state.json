@@ -1,14 +1,14 @@
 {
   "bhoojeevanorganics.com": {
     "alerted": 0,
-    "fails": 212,
-    "first_fail": 1786785071,
+    "fails": 0,
+    "first_fail": 0,
     "last_alert": 0
   },
   "calyora.in": {
     "alerted": 0,
-    "fails": 212,
-    "first_fail": 1786785071,
+    "fails": 0,
+    "first_fail": 0,
     "last_alert": 0
   },
   "holycaresorganic.com": {
@@ -19,32 +19,32 @@
   },
   "myimmersify.com": {
     "alerted": 1,
-    "fails": 432,
+    "fails": 433,
     "first_fail": 1785903540,
     "last_alert": 1786783356
   },
   "sunpwr.com.au": {
     "alerted": 1,
-    "fails": 432,
+    "fails": 433,
     "first_fail": 1785903540,
     "last_alert": 1786783356
   },
   "tunnel-canary": {
     "alerted": 1,
-    "fails": 212,
+    "fails": 213,
     "first_fail": 1786785071,
-    "last_alert": 1787241276
+    "last_alert": 1787243810
   },
   "www.bhoojeevanorganics.com": {
     "alerted": 0,
-    "fails": 212,
-    "first_fail": 1786785071,
+    "fails": 0,
+    "first_fail": 0,
     "last_alert": 0
   },
   "www.calyora.in": {
     "alerted": 0,
-    "fails": 212,
-    "first_fail": 1786785071,
+    "fails": 0,
+    "first_fail": 0,
     "last_alert": 0
   },
   "www.holycaresorganic.com": {
