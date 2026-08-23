@@ -19,21 +19,21 @@
   },
   "myimmersify.com": {
     "alerted": 1,
-    "fails": 531,
+    "fails": 532,
     "first_fail": 1785903540,
     "last_alert": 1787456238
   },
   "sunpwr.com.au": {
     "alerted": 1,
-    "fails": 531,
+    "fails": 532,
     "first_fail": 1785903540,
     "last_alert": 1787456238
   },
   "tunnel-canary": {
     "alerted": 1,
-    "fails": 3,
+    "fails": 4,
     "first_fail": 1787456238,
-    "last_alert": 1787461343
+    "last_alert": 1787463714
   },
   "www.bhoojeevanorganics.com": {
     "alerted": 0,
