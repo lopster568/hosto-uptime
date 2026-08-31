@@ -5,6 +5,8 @@
   { "name": "www.holycaresorganic.com",   "url": "https://www.holycaresorganic.com/",   "site": "holycaresorganic",   "role": "www" },
   { "name": "bhoojeevanorganics.com",     "url": "https://bhoojeevanorganics.com/",     "site": "bhoojeevanorganics", "role": "apex" },
   { "name": "www.bhoojeevanorganics.com", "url": "https://www.bhoojeevanorganics.com/", "site": "bhoojeevanorganics", "role": "www" },
+  { "name": "sprenewables.com",           "url": "https://sprenewables.com/",           "site": "sprenewables",       "role": "apex" },
+  { "name": "www.sprenewables.com",       "url": "https://www.sprenewables.com/",       "site": "sprenewables",       "role": "www" },
   { "name": "myimmersify.com",            "url": "https://myimmersify.com/",            "site": "myimmersify",        "role": "apex" },
   { "name": "sunpwr.com.au",              "url": "https://sunpwr.com.au/",              "site": "solraysconsultant",  "role": "apex" },
   { "name": "tunnel-canary",              "url": "https://tunnel-test.hosto.app/",      "site": "canary",             "role": "canary", "keyword": "edge-ok" }
