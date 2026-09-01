@@ -31,9 +31,9 @@
   },
   "sunpwr.com.au": {
     "alerted": 1,
-    "fails": 682,
+    "fails": 683,
     "first_fail": 1785903540,
-    "last_alert": 1788275429
+    "last_alert": 1788287850
   },
   "tunnel-canary": {
     "alerted": 0,
