@@ -13,7 +13,7 @@
   },
   "holycaresorganic.com": {
     "alerted": 1,
-    "fails": 19,
+    "fails": 20,
     "first_fail": 1788383855,
     "last_alert": 1788583805
   },
@@ -31,15 +31,15 @@
   },
   "sunpwr.com.au": {
     "alerted": 1,
-    "fails": 709,
+    "fails": 710,
     "first_fail": 1785903540,
     "last_alert": 1788583805
   },
   "tunnel-canary": {
     "alerted": 1,
-    "fails": 2,
+    "fails": 3,
     "first_fail": 1788583805,
-    "last_alert": 1788597681
+    "last_alert": 1788610058
   },
   "www.bhoojeevanorganics.com": {
     "alerted": 0,
@@ -55,7 +55,7 @@
   },
   "www.holycaresorganic.com": {
     "alerted": 1,
-    "fails": 19,
+    "fails": 20,
     "first_fail": 1788383855,
     "last_alert": 1788583805
   },
