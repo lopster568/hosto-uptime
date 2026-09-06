@@ -84,5 +84,19 @@
     "url": "https://www.sunpwr.com.au/",
     "site": "solraysconsultant",
     "role": "www"
+  },
+  {
+    "name": "milann8n.cowsaidmoo.tech",
+    "url": "https://milann8n.cowsaidmoo.tech/",
+    "site": "milann8n",
+    "role": "apex",
+    "keyword": "n8n.io - Workflow Automation"
+  },
+  {
+    "name": "vm2-canary",
+    "url": "https://vm2-test.hosto.app/",
+    "site": "canary",
+    "role": "canary",
+    "keyword": "edge-ok"
   }
 ]
