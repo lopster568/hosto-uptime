@@ -13,7 +13,7 @@
   },
   "holycaresorganic.com": {
     "alerted": 1,
-    "fails": 55,
+    "fails": 56,
     "first_fail": 1788383855,
     "last_alert": 1788995713
   },
@@ -37,13 +37,13 @@
   },
   "sunpwr.com.au": {
     "alerted": 1,
-    "fails": 745,
+    "fails": 746,
     "first_fail": 1785903540,
     "last_alert": 1788995713
   },
   "tunnel-canary": {
     "alerted": 1,
-    "fails": 24,
+    "fails": 25,
     "first_fail": 1788711599,
     "last_alert": 1788995713
   },
@@ -73,7 +73,7 @@
   },
   "www.holycaresorganic.com": {
     "alerted": 1,
-    "fails": 55,
+    "fails": 56,
     "first_fail": 1788383855,
     "last_alert": 1788995713
   },
