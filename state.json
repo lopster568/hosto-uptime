@@ -13,9 +13,9 @@
   },
   "holycaresorganic.com": {
     "alerted": 1,
-    "fails": 61,
+    "fails": 62,
     "first_fail": 1788383855,
-    "last_alert": 1789073939
+    "last_alert": 1789081482
   },
   "milann8n.cowsaidmoo.tech": {
     "alerted": 0,
@@ -37,15 +37,15 @@
   },
   "sunpwr.com.au": {
     "alerted": 1,
-    "fails": 751,
+    "fails": 752,
     "first_fail": 1785903540,
-    "last_alert": 1789073939
+    "last_alert": 1789081482
   },
   "tunnel-canary": {
     "alerted": 1,
-    "fails": 30,
+    "fails": 31,
     "first_fail": 1788711599,
-    "last_alert": 1789073939
+    "last_alert": 1789081482
   },
   "vm-canary": {
     "alerted": 0,
@@ -73,9 +73,9 @@
   },
   "www.holycaresorganic.com": {
     "alerted": 1,
-    "fails": 61,
+    "fails": 62,
     "first_fail": 1788383855,
-    "last_alert": 1789073939
+    "last_alert": 1789081482
   },
   "www.myimmersify.com": {
     "alerted": 0,
