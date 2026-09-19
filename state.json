@@ -1,9 +1,9 @@
 {
   "bhoojeevanorganics.com": {
     "alerted": 1,
-    "fails": 2,
+    "fails": 3,
     "first_fail": 1789808165,
-    "last_alert": 1789822756
+    "last_alert": 1789834930
   },
   "calyora.in": {
     "alerted": 0,
@@ -13,9 +13,9 @@
   },
   "holycaresorganic.com": {
     "alerted": 1,
-    "fails": 119,
+    "fails": 120,
     "first_fail": 1788383855,
-    "last_alert": 1789822756
+    "last_alert": 1789834930
   },
   "milann8n.cowsaidmoo.tech": {
     "alerted": 0,
@@ -37,15 +37,15 @@
   },
   "sunpwr.com.au": {
     "alerted": 1,
-    "fails": 809,
+    "fails": 810,
     "first_fail": 1785903540,
-    "last_alert": 1789822756
+    "last_alert": 1789834930
   },
   "tunnel-canary": {
     "alerted": 1,
-    "fails": 88,
+    "fails": 89,
     "first_fail": 1788711599,
-    "last_alert": 1789822756
+    "last_alert": 1789834930
   },
   "vm-canary": {
     "alerted": 0,
@@ -61,9 +61,9 @@
   },
   "www.bhoojeevanorganics.com": {
     "alerted": 1,
-    "fails": 2,
+    "fails": 3,
     "first_fail": 1789808165,
-    "last_alert": 1789822756
+    "last_alert": 1789834930
   },
   "www.calyora.in": {
     "alerted": 0,
@@ -73,9 +73,9 @@
   },
   "www.holycaresorganic.com": {
     "alerted": 1,
-    "fails": 119,
+    "fails": 120,
     "first_fail": 1788383855,
-    "last_alert": 1789822756
+    "last_alert": 1789834930
   },
   "www.myimmersify.com": {
     "alerted": 0,
